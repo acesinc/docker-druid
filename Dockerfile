@@ -8,11 +8,6 @@ RUN wget -q -O - http://mirror.olnevhost.net/pub/apache/maven/maven-3/3.2.1/bina
 RUN ln -s /usr/local/apache-maven-3.2.1 /usr/local/apache-maven
 RUN ln -s /usr/local/apache-maven/bin/mvn /usr/local/bin/mvn
 
-# Zookeeper
-RUN wget -q -O - http://apache.mirrors.pair.com/zookeeper/zookeeper-3.4.6/zookeeper-3.4.6.tar.gz | tar -xzf - -C /usr/local
-RUN cp /usr/local/zookeeper-3.4.6/conf/zoo_sample.cfg /usr/local/zookeeper-3.4.6/conf/zoo.cfg
-RUN ln -s /usr/local/zookeeper-3.4.6 /usr/local/zookeeper
-
 # git
 RUN apt-get install -y git
 
@@ -66,13 +61,9 @@ RUN apt-get clean && rm -rf /tmp/* /var/tmp/*
 # - 8081: HTTP (coordinator)
 # - 8082: HTTP (broker)
 # - 8083: HTTP (historical)
-# - 3306: MySQL
-# - 2181 2888 3888: ZooKeeper
 EXPOSE 8081
 EXPOSE 8082
 EXPOSE 8083
-EXPOSE 3306
-EXPOSE 2181 2888 3888
 
 WORKDIR /var/lib/druid
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
