@@ -1,15 +1,4 @@
-FROM ubuntu:14.04
-
-# Add Java 7 repository
-RUN apt-get update
-RUN apt-get install -y software-properties-common
-RUN apt-add-repository -y ppa:webupd8team/java
-RUN apt-get update
-
-# Oracle Java 7
-RUN echo oracle-java-7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
-RUN apt-get install -y oracle-java7-installer
-RUN apt-get install -y oracle-java7-set-default
+FROM dockerfile/java:oracle-java7
 
 # MySQL (Metadata store)
 RUN apt-get install -y mysql-server
