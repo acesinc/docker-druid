@@ -4,8 +4,8 @@ FROM dockerfile/java:oracle-java7
 RUN apt-get install -y supervisor
 
 # Maven
-RUN wget -q -O - http://mirror.olnevhost.net/pub/apache/maven/maven-3/3.2.1/binaries/apache-maven-3.2.1-bin.tar.gz | tar -xzf - -C /usr/local
-RUN ln -s /usr/local/apache-maven-3.2.1 /usr/local/apache-maven
+RUN wget -q -O - http://mirror.olnevhost.net/pub/apache/maven/maven-3/3.2.3/binaries/apache-maven-3.2.3-bin.tar.gz | tar -xzf - -C /usr/local
+RUN ln -s /usr/local/apache-maven-3.2.3 /usr/local/apache-maven
 RUN ln -s /usr/local/apache-maven/bin/mvn /usr/local/bin/mvn
 
 # git
