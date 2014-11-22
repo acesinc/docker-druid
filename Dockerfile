@@ -37,7 +37,7 @@ RUN mvn -B release:prepare -DpushChanges=false -DpreparationGoals=clean -Dreleas
 
 RUN cp -f target/checkout/services/target/druid-services-$DRUID_VERSION-selfcontained.jar /usr/local/druid/lib
 # pull dependencies for Druid extensions
-RUN java "-Ddruid.extensions.coordinates=[\"io.druid.extensions:druid-s3-extensions:$DRUID_VERSION\", \"io.druid.extensions:mysql-metadata-storage:$DRUID_VERSION\"]" -Ddruid.extensions.localRepository=/usr/local/druid/repository -Ddruid.extensions.remoteRepositories=[\"file:///root/.m2/repository/\",\"http://repo1.maven.org/maven2/\",\"https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local\"] -cp /usr/local/druid/lib/* io.druid.cli.Main tools pull-deps
+RUN java "-Ddruid.extensions.coordinates=[\"io.druid.extensions:druid-s3-extensions:$DRUID_VERSION\", \"io.druid.extensions:mysql-metadata-storage:$DRUID_VERSION\"]" -Ddruid.extensions.localRepository=/usr/local/druid/repository -Ddruid.extensions.remoteRepositories=["file:///root/.m2/repository/","http://repo1.maven.org/maven2/","https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local"] -cp /usr/local/druid/lib/* io.druid.cli.Main tools pull-deps
 
 WORKDIR /
 
