@@ -1,5 +1,8 @@
 FROM dockerfile/java:oracle-java7
 
+# Update packages
+RUN apt-get update
+
 # Supervisor
 RUN apt-get install -y supervisor
 
@@ -19,11 +22,6 @@ RUN chown druid:druid /var/lib/druid
 # Pre-cache Druid dependencies
 RUN mvn dependency:get -DremoteRepositories=https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local -Dartifact=io.druid:druid-services:0.6.160
 
-# Druid (release tarball)
-#ENV DRUID_VERSION 0.7.0
-#RUN wget -q -O - http://static.druid.io/artifacts/releases/druid-services-$DRUID_VERSION-bin.tar.gz | tar -xzf - -C /usr/local
-#RUN ln -s /usr/local/druid-services-$DRUID_VERSION /usr/local/druid
-
 # Druid (from source)
 ENV DRUID_VERSION master
 RUN git config --global user.email docker@druid.io
@@ -37,22 +35,17 @@ RUN mvn -B release:prepare -DpushChanges=false -DpreparationGoals=clean -Dreleas
 
 RUN cp -f target/checkout/services/target/druid-services-$DRUID_VERSION-selfcontained.jar /usr/local/druid/lib
 # pull dependencies for Druid extensions
-RUN java "-Ddruid.extensions.coordinates=[\"io.druid.extensions:druid-s3-extensions:$DRUID_VERSION\", \"io.druid.extensions:mysql-metadata-storage:$DRUID_VERSION\"]" -Ddruid.extensions.localRepository=/usr/local/druid/repository -Ddruid.extensions.remoteRepositories=["file:///root/.m2/repository/","http://repo1.maven.org/maven2/","https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local"] -cp /usr/local/druid/lib/* io.druid.cli.Main tools pull-deps
+RUN java "-Ddruid.extensions.coordinates=[\"io.druid.extensions:druid-s3-extensions:$DRUID_VERSION\", \"io.druid.extensions:mysql-metadata-storage:$DRUID_VERSION\",\"io.druid.extensions:druid-kafka-eight:$DRUID_VERSION\"]" -Ddruid.extensions.localRepository=/usr/local/druid/repository "-Ddruid.extensions.remoteRepositories=[\"file:///root/.m2/repository/\",\"http://repo1.maven.org/maven2/\",\"https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local\"]" -cp /usr/local/druid/lib/* io.druid.cli.Main tools pull-deps
 
 WORKDIR /
-
-# Setup metadata store
-#RUN /etc/init.d/mysql start && echo "GRANT ALL ON druid.* TO 'druid'@'localhost' IDENTIFIED BY 'druid'; CREATE database druid;" | mysql -u root && /etc/init.d/mysql stop
-
-# Add sample data
-#RUN /etc/init.d/mysql start && java -cp /usr/local/druid/lib/druid-services-*-selfcontained.jar -Ddruid.extensions.coordinates=[\"io.druid.extensions:mysql-metadata-storage:$DRUID_VERSION\"] -Ddruid.metadata.storage.type=mysql io.druid.cli.Main tools metadata-init --connectURI="jdbc:mysql://localhost:3306/druid" --user=druid --password=druid && /etc/init.d/mysql stop
-#ADD sample-data.sql sample-data.sql
-#RUN /etc/init.d/mysql start && cat sample-data.sql | mysql -u root druid && /etc/init.d/mysql stop
 
 # Setup supervisord
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN echo $DRUID_VERSION
 RUN perl -pi -e "s/[\\$]DRUID_VERSION/$DRUID_VERSION/g" /etc/supervisor/conf.d/supervisord.conf
+
+# Include metadata store init script
+ADD init-metadata.sh /var/lib/druid/init-metadata.sh
 
 # Clean up
 RUN apt-get clean && rm -rf /tmp/* /var/tmp/*
@@ -61,9 +54,12 @@ RUN apt-get clean && rm -rf /tmp/* /var/tmp/*
 # - 8081: HTTP (coordinator)
 # - 8082: HTTP (broker)
 # - 8083: HTTP (historical)
+EXPOSE 8080
 EXPOSE 8081
 EXPOSE 8082
 EXPOSE 8083
+EXPOSE 8084
 
 WORKDIR /var/lib/druid
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
