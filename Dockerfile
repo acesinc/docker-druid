@@ -47,6 +47,9 @@ RUN perl -pi -e "s/[\\$]DRUID_VERSION/$DRUID_VERSION/g" /etc/supervisor/conf.d/s
 # Include metadata store init script
 ADD init-metadata.sh /var/lib/druid/init-metadata.sh
 
+# Include realtime spec
+ADD realtime.spec /var/lib/druid/realtime.spec
+
 # Clean up
 RUN apt-get clean && rm -rf /tmp/* /var/tmp/*
 
