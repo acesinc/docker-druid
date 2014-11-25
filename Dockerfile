@@ -23,19 +23,21 @@ RUN chown druid:druid /var/lib/druid
 RUN mvn dependency:get -DremoteRepositories=https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local -Dartifact=io.druid:druid-services:0.6.160
 
 # Druid (from source)
-ENV DRUID_VERSION master
+ENV DRUID_VERSION 0.6.162
 RUN git config --global user.email docker@druid.io
-# trigger rebuild only if branch changed
-ADD https://api.github.com/repos/metamx/druid/git/refs/heads/$DRUID_VERSION druid-version.json
-RUN git clone -q --branch $DRUID_VERSION --depth 1 https://github.com/metamx/druid.git /tmp/druid
+
+# Use tag: druid-$DRUID_VERSION
+RUN git clone -q --branch druid-$DRUID_VERSION --depth 1 https://github.com/metamx/druid.git /tmp/druid
 RUN mkdir -p /usr/local/druid/lib /usr/local/druid/repository
 WORKDIR /tmp/druid
-# package and install Druid locally
-RUN mvn -B release:prepare -DpushChanges=false -DpreparationGoals=clean -DreleaseVersion=$DRUID_VERSION -DdevelopmentVersion=$DRUID_VERSION-SNAPSHOT release:perform -Darguments="-DskipTests=true -Dmaven.javadoc.skip=true" -DlocalCheckout=true -Dgoals=install
 
-RUN cp -f target/checkout/services/target/druid-services-$DRUID_VERSION-selfcontained.jar /usr/local/druid/lib
+# package and install Druid locally
+#RUN mvn release:perform -DlocalCheckout=true -Darguments="-DskipTests=true -Dmaven.javadoc.skip=true" -Dgoals=install
+RUN mvn install -DskipTests=true -Dmaven.javadoc.skip=true
+
+RUN cp -f services/target/druid-services-$DRUID_VERSION-selfcontained.jar /usr/local/druid/lib
 # pull dependencies for Druid extensions
-RUN java "-Ddruid.extensions.coordinates=[\"io.druid.extensions:druid-s3-extensions:$DRUID_VERSION\", \"io.druid.extensions:mysql-metadata-storage:$DRUID_VERSION\",\"io.druid.extensions:druid-kafka-eight:$DRUID_VERSION\"]" -Ddruid.extensions.localRepository=/usr/local/druid/repository "-Ddruid.extensions.remoteRepositories=[\"file:///root/.m2/repository/\",\"http://repo1.maven.org/maven2/\",\"https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local\"]" -cp /usr/local/druid/lib/* io.druid.cli.Main tools pull-deps
+RUN java "-Ddruid.extensions.coordinates=[\"io.druid.extensions:druid-s3-extensions:$DRUID_VERSION\", \"io.druid.extensions:druid-kafka-eight:$DRUID_VERSION\"]" -Ddruid.extensions.localRepository=/usr/local/druid/repository "-Ddruid.extensions.remoteRepositories=[\"file:///root/.m2/repository/\",\"http://repo1.maven.org/maven2/\",\"https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local\"]" -cp /usr/local/druid/lib/* io.druid.cli.Main tools pull-deps
 
 WORKDIR /
 
