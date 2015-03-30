@@ -1,0 +1,50 @@
+zookeeper:
+  image: jplock/zookeeper
+  ports:
+    - "12181:2181"
+    - "12888:2888"
+    - "13888:3888"
+  hostname: zookeeper
+  domainname: druid.io
+mysql:
+  image: mysql:5.7
+#  command: /etc/init.d/mysql start && echo "GRANT ALL ON druid.* TO 'druid'@'localhost' IDENTIFIED BY 'diurd'; CREATE database druid CHARACTER SET utf8;" | mysql -u root -psecret && /etc/init.d/mysql stop
+  volumes:
+    - ./.data:/var/lib/mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: secret
+    MYSQL_USER: druid
+    MYSQL_PASSWORD: druid
+    MYSQL_DATABASE: druid
+    MYSQL_CHARSET: utf8
+  ports:
+    - "33306:3306"
+  hostname: metadb
+  domainname: druid.io
+kafka:
+    image: wurstmeister/kafka
+    ports:
+        - "9092"
+    links: 
+        - zookeeper:zk
+    environment:
+        KAFKA_ADVERTISED_HOST_NAME: 192.168.59.103
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+#    hostname: kafka
+#    domainname: druid.io
+druid:
+  build: . #enable to work off local Dockerfile
+  #image: worrel/docker-druid #enable to work off pre-built Hub Dockerfile
+  ports:
+    - "18080:8080"
+    - "18081:8081"
+    - "18082:8082"
+    - "18083:8083"
+    - "18084:8084"
+  hostname: services
+  domainname: druid.io
+  links:
+    - zookeeper
+    - mysql
+    - kafka

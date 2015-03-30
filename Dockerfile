@@ -7,8 +7,8 @@ RUN apt-get update
 RUN apt-get install -y supervisor
 
 # Maven
-RUN wget -q -O - http://mirror.olnevhost.net/pub/apache/maven/maven-3/3.2.3/binaries/apache-maven-3.2.3-bin.tar.gz | tar -xzf - -C /usr/local
-RUN ln -s /usr/local/apache-maven-3.2.3 /usr/local/apache-maven
+RUN wget -q -O - http://www.us.apache.org/dist/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz | tar -xzf - -C /usr/local
+RUN ln -s /usr/local/apache-maven-3.2.5 /usr/local/apache-maven
 RUN ln -s /usr/local/apache-maven/bin/mvn /usr/local/bin/mvn
 
 # git
@@ -23,11 +23,11 @@ RUN chown druid:druid /var/lib/druid
 RUN mvn dependency:get -DremoteRepositories=https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local -Dartifact=io.druid:druid-services:0.6.160
 
 # Druid (from source)
-ENV DRUID_VERSION 0.6.162
+ENV DRUID_VERSION 0.7.0
 RUN git config --global user.email docker@druid.io
 
 # Use tag: druid-$DRUID_VERSION
-RUN git clone -q --branch druid-$DRUID_VERSION --depth 1 https://github.com/metamx/druid.git /tmp/druid
+RUN git clone -q --branch druid-$DRUID_VERSION --depth 1 https://github.com/druid-io/druid.git /tmp/druid
 RUN mkdir -p /usr/local/druid/lib /usr/local/druid/repository
 WORKDIR /tmp/druid
 
