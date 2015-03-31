@@ -67,6 +67,11 @@ And you should get back data like:
 
 Yay! It works!
 
+## Creating your own processing
+If you want to change the realtime processing, you need to either edit the realtime.spec,
+or create your own, add it to the Dockerfile, and change the runtime.properties for the 
+realtime service to load that file. 
+
 ## Troubleshooting
 Logging into MySQL:
 
