@@ -43,7 +43,7 @@ RUN java "-Ddruid.extensions.coordinates=[\"io.druid.extensions:druid-s3-extensi
 
 WORKDIR /
 
-ADD config /usr/local/druid
+ADD config /usr/local/druid/config
 
 # Setup supervisord
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
