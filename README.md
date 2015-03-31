@@ -29,7 +29,7 @@ If you want the cluster to run in the background, do the following:
 ## Testing things out
 Assuming boot2docker ip returns 192.168.59.103, you should be able to access the coordinator console at:
 
-    http://192.168.59.103:18082/
+    http://192.168.59.103:8082/
 
 The example running inside your cluster is a wikipedia example that expects to 
 receive data via a kafka stream. This is the same example found in the druid docs here: 
@@ -39,11 +39,11 @@ You will need to download kafka and have that installed
 locally on your machine to produce data for the example.  After you have installed kafka,
 we need to set up a queue. Make sure your cluster is running, then run this command:
 
-    ./bin/kafka-topics.sh --create --zookeeper `boot2docker ip`:12181 --replication-factor 1 --partitions 1 --topic wikipedia
+    ./bin/kafka-topics.sh --create --zookeeper `boot2docker ip`:2181 --replication-factor 1 --partitions 1 --topic wikipedia
 
 Next we are going to start a producer console just for testing:
 
-    ./bin/kafka-console-producer.sh --broker-list `boot2docker ip`:19092 --topic wikipedia
+    ./bin/kafka-console-producer.sh --broker-list `boot2docker ip`:9092 --topic wikipedia
 
 Now you can send some data.  Copy and paste the following data into your producer console:
 
@@ -61,7 +61,7 @@ When you run this data through, you should see a log message in your druid windo
 
 Now, in theory you can execute a query against your realtime node like so:
 
-    curl -XPOST -H'Content-type: application/json' "http://192.168.59.103:18084/druid/v2/?pretty" -d'{"queryType":"timeBoundary","dataSource":"wikipedia"}'
+    curl -XPOST -H'Content-type: application/json' "http://192.168.59.103:8084/druid/v2/?pretty" -d'{"queryType":"timeBoundary","dataSource":"wikipedia"}'
 
 And you should get back data like:
 
@@ -76,8 +76,8 @@ And you should get back data like:
 ## Troubleshooting
 Logging into MySQL:
 
-    mysql --host=`boot2docker ip` --port=33306 -u root -psecret druid
-    mysql --host=`boot2docker ip` --port=33306 -u druid -pdruid druid
+    mysql --host=`boot2docker ip` --port=3306 -u root -psecret druid
+    mysql --host=`boot2docker ip` --port=3306 -u druid -pdruid druid
 
 
 ## Known issues

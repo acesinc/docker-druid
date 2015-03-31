@@ -19,12 +19,14 @@ RUN adduser --system --group --no-create-home druid
 RUN mkdir -p /var/lib/druid
 RUN chown druid:druid /var/lib/druid
 
-# Pre-cache Druid dependencies
-RUN mvn dependency:get -DremoteRepositories=https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local -Dartifact=io.druid:druid-services:0.6.160
+
 
 # Druid (from source)
 ENV DRUID_VERSION 0.7.0
 RUN git config --global user.email docker@druid.io
+
+# Pre-cache Druid dependencies
+RUN mvn dependency:get -DremoteRepositories=https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local -Dartifact=io.druid:druid-services:$DRUID_VERSION
 
 # Use tag: druid-$DRUID_VERSION
 RUN git clone -q --branch druid-$DRUID_VERSION --depth 1 https://github.com/druid-io/druid.git /tmp/druid
@@ -37,9 +39,11 @@ RUN mvn install -DskipTests=true -Dmaven.javadoc.skip=true
 
 RUN cp -f services/target/druid-services-$DRUID_VERSION-selfcontained.jar /usr/local/druid/lib
 # pull dependencies for Druid extensions
-RUN java "-Ddruid.extensions.coordinates=[\"io.druid.extensions:druid-s3-extensions:$DRUID_VERSION\", \"io.druid.extensions:druid-kafka-eight:$DRUID_VERSION\"]" -Ddruid.extensions.localRepository=/usr/local/druid/repository "-Ddruid.extensions.remoteRepositories=[\"file:///root/.m2/repository/\",\"http://repo1.maven.org/maven2/\",\"https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local\"]" -cp /usr/local/druid/lib/* io.druid.cli.Main tools pull-deps
+RUN java "-Ddruid.extensions.coordinates=[\"io.druid.extensions:druid-s3-extensions:$DRUID_VERSION\", \"io.druid.extensions:druid-kafka-eight:$DRUID_VERSION\", \"io.druid.extensions:mysql-metadata-storage:$DRUID_VERSION\"]" -Ddruid.extensions.localRepository=/usr/local/druid/repository "-Ddruid.extensions.remoteRepositories=[\"file:///root/.m2/repository/\",\"http://repo1.maven.org/maven2/\",\"https://metamx.artifactoryonline.com/metamx/pub-libs-releases-local\"]" -cp /usr/local/druid/lib/* io.druid.cli.Main tools pull-deps
 
 WORKDIR /
+
+ADD config /usr/local/druid
 
 # Setup supervisord
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf

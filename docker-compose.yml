@@ -1,9 +1,9 @@
 zookeeper:
   image: jplock/zookeeper
   ports:
-    - "12181:2181"
-    - "12888:2888"
-    - "13888:3888"
+    - "2181:2181"
+    - "2888:2888"
+    - "3888:3888"
   hostname: zookeeper
   domainname: druid.io
 mysql:
@@ -18,13 +18,13 @@ mysql:
     MYSQL_DATABASE: druid
     MYSQL_CHARSET: utf8
   ports:
-    - "33306:3306"
+    - "3306:3306"
   hostname: metadb
   domainname: druid.io
 kafka:
     image: wurstmeister/kafka
     ports:
-        - "19092:9092"
+        - "9092:9092"
     links: 
         - zookeeper:zk
     environment:
@@ -37,11 +37,11 @@ druid:
   build: . #enable to work off local Dockerfile
   #image: worrel/docker-druid #enable to work off pre-built Hub Dockerfile
   ports:
-    - "18080:8080"
-    - "18081:8081"
-    - "18082:8082"
-    - "18083:8083"
-    - "18084:8084"
+    - "8080:8080"
+    - "8081:8081"
+    - "8082:8082"
+    - "8083:8083"
+    - "8084:8084"
   hostname: services
   domainname: druid.io
   links:
