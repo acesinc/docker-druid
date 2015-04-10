@@ -1,4 +1,4 @@
-Dockerfile for Druid
+# Dockerfile for Druid
 
 Modified version of official druid.io Docker image that has the following changes:
  * MySQL runs in it's own container
@@ -10,6 +10,19 @@ Modified version of official druid.io Docker image that has the following change
 You can now use docker-compose to run the druid cluster. To do so, you can run
 the following steps. 
 
+## Getting Started
+Getting up and running with our druid cluster using docking is pretty easy.  
+### Install Docker
+If you haven't already, you need to install Docker.  You can find a quick guide [here](https://github.com/druid-io/docker-druid/blob/master/docker-install.md). 
+
+### Make sure boot2docker is running
+I'm using boot2docker on OS X, so we wante to make sure it is running before trying to start our druid cluster. Do the following:
+
+	boot2docker up
+	eval "$(boot2docker shellinit)"
+	
+### Now start our druid cluster
+
     git clone git@github.com:andrewserff/docker-druid.git
     cd docker-druid
     docker-compose up
@@ -19,7 +32,7 @@ If you want the cluster to run in the background, do the following:
     docker-compose up -d
 
 ## Testing things out
-Assuming boot2docker ip returns 192.168.59.103, you should be able to access the coordinator console at:
+Assuming `boot2docker ip` returns 192.168.59.103, you should be able to access the [coordinator console](http://192.168.59.103:8081/) at:
 
     http://192.168.59.103:8081/
 
@@ -77,6 +90,14 @@ Logging into MySQL:
 
     mysql --host=`boot2docker ip` --port=3306 -u root -psecret druid
     mysql --host=`boot2docker ip` --port=3306 -u druid -pdruid druid
+    
+If mysql won't start, you may need to try and remove the .data directory. Our Docker configuration uses a volume mounted from our local filesystem to the Docker Container.  Sometimes, boot2docker won't allow the container to write to that filesytem.  So usually this fixes it:
+
+	cd docker-druid
+	rm -rf .data
+	docker-compose up
+	
+I have had to remove and restart it multiple times before to get it to work for some reason as well. 
 
 
 ## Known issues
