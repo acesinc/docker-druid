@@ -42,6 +42,7 @@ druid:
     - "8082:8082"
     - "8083:8083"
     - "8084:8084"
+    - "8090:8090"
   hostname: services
   domainname: druid.io
   links:

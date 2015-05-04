@@ -19,8 +19,6 @@ RUN adduser --system --group --no-create-home druid
 RUN mkdir -p /var/lib/druid
 RUN chown druid:druid /var/lib/druid
 
-
-
 # Druid (from source)
 ENV DRUID_VERSION 0.7.1.1
 RUN git config --global user.email docker@druid.io
@@ -68,6 +66,7 @@ EXPOSE 8081
 EXPOSE 8082
 EXPOSE 8083
 EXPOSE 8084
+EXPOSE 8090
 
 WORKDIR /var/lib/druid
 
